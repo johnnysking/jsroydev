@@ -39,10 +39,11 @@
         justify-content: center;
         align-items: center;
         text-align: center;
-        z-index: 2000;
+        z-index: 1000;
         opacity: 1;
         transform: translateY(-100px);
         animation: fadeDown 5s ease forwards;
+        pointer-events: none;
       }
 
       @keyframes fadeDown {
@@ -250,7 +251,7 @@
         background: #111111;
         border-left: 1px solid #333333;
         transition: right 0.3s ease;
-        z-index: 1000;
+        z-index: 2100;
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -394,7 +395,7 @@
         opacity: 0;
         visibility: hidden;
         transition: all 0.3s ease;
-        z-index: 999;
+        z-index: 2050;
       }
 
       .overlay.visible {
@@ -619,9 +620,71 @@
           font-size: 1.5rem;
         }
       }
+
+      /* Navbar Styles */
+      .navbar {
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        display: flex;
+        gap: 2rem;
+        z-index: 2075;
+        animation: fadeInDown 1.5s ease-out;
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .navbar .text-button {
+        position: relative;
+        display: inline-block;
+        text-decoration: none;
+        font-size: clamp(0.9rem, 2vw, 1.1rem);
+      }
+
+      .navbar.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      @media (max-width: 768px) {
+        .navbar {
+          top: 1.5rem;
+          right: 1.5rem;
+          gap: 1.5rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .navbar {
+          top: 1rem;
+          right: 1rem;
+          gap: 1rem;
+          flex-direction: column;
+          align-items: flex-end;
+        }
+
+        .navbar .text-button {
+          font-size: 1rem;
+        }
+      }
     </style>
   </head>
   <body>
+    <!-- Navigation Navbar -->
+    <nav class="navbar" id="navbar">
+      <a href="#" class="text-button" id="portfolioBtn">Portfolio</a>
+      <a href="#" class="text-button" id="contactBtn">Contact</a>
+    </nav>
+
     <!-- Animation d'introduction -->
     <div class="fade-intro" id="fadeIntro">
       <h1>Jean-Sébastien Roy</h1>
@@ -645,18 +708,14 @@
           votre projet et découvrir comment je peux vous aider à atteindre vos
           objectifs en ligne.
         </p>
-
-        <div class="buttons">
-          <a href="#" class="text-button" id="portfolioBtn">Portfolio</a>
-          <a href="#" class="text-button" id="contactBtn">Contact</a>
-        </div>
       </div>
+    </div>
 
-      <!-- Overlay -->
-      <div class="overlay" id="overlay"></div>
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
 
-      <!-- Contact Drawer -->
-      <div class="drawer" id="contactDrawer">
+    <!-- Contact Drawer -->
+    <div class="drawer" id="contactDrawer">
         <div class="drawer-header">
           <h3 class="drawer-title">Contact</h3>
           <button class="close-btn" id="closeContactBtn">&times;</button>
@@ -800,7 +859,6 @@
           </div>
         </div>
       </div>
-    </div>
 
     <script>
       // Variables pour tracker les états
@@ -809,6 +867,7 @@
       let showPortfolioDrawer = false;
 
       // Éléments DOM
+      const navbar = document.getElementById("navbar");
       const portfolioBtn = document.getElementById("portfolioBtn");
       const contactBtn = document.getElementById("contactBtn");
       const contactDrawer = document.getElementById("contactDrawer");
@@ -828,13 +887,12 @@
         }, 1000);
       }
 
-      // Fonction pour ouvrir le drawer contact avec délai
+      // Fonction pour ouvrir le drawer contact
       function openContactDrawer() {
-        setTimeout(() => {
-          showContactDrawer = true;
-          contactDrawer.classList.add("open");
-          overlay.classList.add("visible");
-        }, 1000);
+        showContactDrawer = true;
+        contactDrawer.classList.add("open");
+        overlay.classList.add("visible");
+        navbar.classList.add("hidden");
       }
 
       // Fonction pour fermer le drawer contact
@@ -842,15 +900,15 @@
         showContactDrawer = false;
         contactDrawer.classList.remove("open");
         overlay.classList.remove("visible");
+        navbar.classList.remove("hidden");
       }
 
-      // Fonction pour ouvrir le drawer portfolio avec délai
+      // Fonction pour ouvrir le drawer portfolio
       function openPortfolioDrawer() {
-        setTimeout(() => {
-          showPortfolioDrawer = true;
-          portfolioDrawer.classList.add("open");
-          overlay.classList.add("visible");
-        }, 1000);
+        showPortfolioDrawer = true;
+        portfolioDrawer.classList.add("open");
+        overlay.classList.add("visible");
+        navbar.classList.add("hidden");
       }
 
       // Fonction pour fermer le drawer portfolio
@@ -858,109 +916,109 @@
         showPortfolioDrawer = false;
         portfolioDrawer.classList.remove("open");
         overlay.classList.remove("visible");
+        navbar.classList.remove("hidden");
       }
 
-      // Event listeners pour les boutons (activation après l'animation d'intro)
-      setTimeout(() => {
-        portfolioBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          handleSpin("portfolio", portfolioBtn);
-          openPortfolioDrawer();
-        });
+      // Event listeners pour les boutons (activation immediate)
+      // Navbar buttons
+      portfolioBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        handleSpin("portfolio", portfolioBtn);
+        openPortfolioDrawer();
+      });
 
-        contactBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          handleSpin("contact", contactBtn);
-          openContactDrawer();
-        });
+      contactBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        handleSpin("contact", contactBtn);
+        openContactDrawer();
+      });
 
-        // Event listeners pour fermer les drawers
-        closeContactBtn.addEventListener("click", closeContactDrawer);
-        closePortfolioBtn.addEventListener("click", closePortfolioDrawer);
-        overlay.addEventListener("click", () => {
+      // Event listeners pour fermer les drawers
+      closeContactBtn.addEventListener("click", closeContactDrawer);
+      closePortfolioBtn.addEventListener("click", closePortfolioDrawer);
+      overlay.addEventListener("click", () => {
+        if (showContactDrawer) closeContactDrawer();
+        if (showPortfolioDrawer) closePortfolioDrawer();
+      });
+
+      // Fermer avec la touche Escape
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
           if (showContactDrawer) closeContactDrawer();
           if (showPortfolioDrawer) closePortfolioDrawer();
-        });
-
-        // Fermer avec la touche Escape
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") {
-            if (showContactDrawer) closeContactDrawer();
-            if (showPortfolioDrawer) closePortfolioDrawer();
-          }
-        });
-
-        // Effet de clic pour changer la vitesse de la grille
-        let isSlowGrid = false;
-        document.addEventListener("click", (e) => {
-          // Ne pas changer la grille si on clique sur les liens ou drawers
-          if (
-            !e.target.closest(".text-button") &&
-            !e.target.closest(".drawer")
-          ) {
-            const grid = document.querySelector(".background-grid");
-            isSlowGrid = !isSlowGrid;
-            grid.style.animationDuration = isSlowGrid ? "40s" : "20s";
-          }
-        });
-
-        // Gestion du formulaire de contact
-        const contactForm = document.getElementById("contactForm");
-        const formResult = document.getElementById("formResult");
-
-        if (contactForm) {
-          contactForm.addEventListener("submit", async function(e) {
-            e.preventDefault();
-
-            const form = e.target;
-            const submitBtn = form.querySelector(".form-submit");
-            
-            // Vérification anti-spam honeypot
-            if (form.botcheck.value !== "") {
-              formResult.textContent = "Erreur : spam détecté.";
-              formResult.className = "form-result error";
-              return;
-            }
-
-            // Désactiver le bouton pendant l'envoi
-            submitBtn.disabled = true;
-            submitBtn.textContent = "Envoi en cours...";
-
-            const formData = new FormData(form);
-
-            try {
-              const response = await fetch(form.action, {
-                method: form.method,
-                body: formData,
-                headers: {
-                  'Accept': 'application/json'
-                }
-              });
-
-              const data = await response.json();
-              console.log('Response:', data);
-
-              if (response.ok && data.success) {
-                formResult.textContent = "Message envoyé avec succès ! Je vous répondrai bientôt.";
-                formResult.className = "form-result success";
-                form.reset();
-              } else {
-                console.error('Error details:', data);
-                formResult.textContent = data.message || "Erreur lors de l'envoi. Veuillez réessayer ou m'écrire directement.";
-                formResult.className = "form-result error";
-              }
-            } catch (error) {
-              console.error('Fetch error:', error);
-              formResult.textContent = "Erreur lors de l'envoi. Veuillez réessayer ou m'écrire directement.";
-              formResult.className = "form-result error";
-            } finally {
-              // Réactiver le bouton
-              submitBtn.disabled = false;
-              submitBtn.textContent = "Envoyer";
-            }
-          });
         }
-      }, 5000); // Activer les interactions après l'animation d'intro
+      });
+
+      // Effet de clic pour changer la vitesse de la grille
+      let isSlowGrid = false;
+      document.addEventListener("click", (e) => {
+        // Ne pas changer la grille si on clique sur les liens ou drawers
+        if (
+          !e.target.closest(".text-button") &&
+          !e.target.closest(".drawer")
+        ) {
+          const grid = document.querySelector(".background-grid");
+          isSlowGrid = !isSlowGrid;
+          grid.style.animationDuration = isSlowGrid ? "40s" : "20s";
+        }
+      });
+
+      // Gestion du formulaire de contact
+      const contactForm = document.getElementById("contactForm");
+      const formResult = document.getElementById("formResult");
+
+      if (contactForm) {
+        contactForm.addEventListener("submit", async function(e) {
+          e.preventDefault();
+
+          const form = e.target;
+          const submitBtn = form.querySelector(".form-submit");
+
+          // Vérification anti-spam honeypot
+          if (form.botcheck.value !== "") {
+            formResult.textContent = "Erreur : spam détecté.";
+            formResult.className = "form-result error";
+            return;
+          }
+
+          // Désactiver le bouton pendant l'envoi
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Envoi en cours...";
+
+          const formData = new FormData(form);
+
+          try {
+            const response = await fetch(form.action, {
+              method: form.method,
+              body: formData,
+              headers: {
+                'Accept': 'application/json'
+              }
+            });
+
+            const data = await response.json();
+            console.log('Response:', data);
+
+            if (response.ok && data.success) {
+              formResult.textContent = "Message envoyé avec succès ! Je vous répondrai bientôt.";
+              formResult.className = "form-result success";
+              form.reset();
+            } else {
+              console.error('Error details:', data);
+              formResult.textContent = data.message || "Erreur lors de l'envoi. Veuillez réessayer ou m'écrire directement.";
+              formResult.className = "form-result error";
+            }
+          } catch (error) {
+            console.error('Fetch error:', error);
+            formResult.textContent = "Erreur lors de l'envoi. Veuillez réessayer ou m'écrire directement.";
+            formResult.className = "form-result error";
+          } finally {
+            // Réactiver le bouton
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Envoyer";
+          }
+        });
+      }
     </script>
   </body>
 </html>
